@@ -18,7 +18,8 @@ export default function Login() {
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.error || "Login failed!");
+      alert(data.error || "Login failed!");
+      return;
     }
 
     const data = await response.json();
