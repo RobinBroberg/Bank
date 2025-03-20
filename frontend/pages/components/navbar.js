@@ -25,7 +25,7 @@ export default function Navbar() {
 
   return (
     <header className="bg-white shadow-md py-4">
-      <div className="container mx-auto flex justify-between items-center px-4">
+      <div className="container mx-auto flex justify-between items-center px-2">
         <h1 className="text-xl font-bold text-blue-600">Bank-sajt</h1>
         <nav>
           <ul className="flex space-x-4">

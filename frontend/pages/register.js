@@ -31,7 +31,7 @@ export default function Register() {
             <label className="block text-gray-700">Användarnamn</label>
             <input
               type="text"
-              className="w-full px-4 py-2 border rounded-md"
+              className="w-full px-4 py-2 border rounded-md text-gray-800"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -39,7 +39,7 @@ export default function Register() {
             <label className="block text-gray-700 mt-4">Lösenord</label>
             <input
               type="password"
-              className="w-full px-4 py-2 border rounded-md"
+              className="w-full px-4 py-2 border rounded-md text-gray-800"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
