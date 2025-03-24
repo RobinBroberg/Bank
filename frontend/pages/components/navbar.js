@@ -7,26 +7,31 @@ export default function Navbar() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    const checkLoginStatus = () => {
       const userId = localStorage.getItem("userId");
       const otp = localStorage.getItem("otp");
-
       setLoggedIn(userId !== null && otp !== null);
-    }
-  }, []);
+    };
+
+    checkLoginStatus();
+    router.events.on("routeChangeComplete", checkLoginStatus);
+    return () => {
+      router.events.off("routeChangeComplete", checkLoginStatus);
+    };
+  }, [router.events]);
 
   function handleLogout() {
     localStorage.removeItem("userId");
     localStorage.removeItem("otp");
 
     setLoggedIn(false);
-    router.push("/login");
+    router.push("/");
   }
 
   return (
     <header className="bg-white shadow-md py-4">
-      <div className="container mx-auto flex justify-between items-center px-2">
-        <h1 className="text-xl font-bold text-blue-600">Bank-sajt</h1>
+      <div className="flex w-full items-center justify-between px-6">
+        <h1 className="text-2xl font-bold text-blue-600">Bank-sajt</h1>
         <nav>
           <ul className="flex space-x-4">
             <li>

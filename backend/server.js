@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
+import mysql from "mysql2/promise";
 
 const app = express();
 const port = 3001;
@@ -8,72 +9,95 @@ const port = 3001;
 app.use(cors());
 app.use(bodyParser.json());
 
+const pool = mysql.createPool({
+  user: "root",
+  password: "root",
+  host: "localhost",
+  database: "bank",
+  port: 3307,
+});
+
 function generateOTP() {
-  // Generera en sexsiffrig numerisk OTP
   const otp = Math.floor(100000 + Math.random() * 900000);
   return otp.toString();
 }
 
-const users = [];
-const accounts = [];
+async function query(sql, params) {
+  const [results] = await pool.execute(sql, params);
+  return results;
+}
+
 let sessions = [];
 
-let userIds = 1;
-let accountIds = 1;
-
-app.post("/users", (req, res) => {
+app.post("/users", async (req, res) => {
   const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res
-      .status(400)
-      .json({ error: "Username and password are required" });
+  try {
+    const userSql = "INSERT INTO users (username, password) VALUES (?, ?)";
+    const userParams = [username, password];
+    const result = await query(userSql, userParams);
+
+    const userId = result.insertId;
+
+    const accountSql = "INSERT INTO accounts (userId, amount) VALUES (?, ?)";
+    const accountParams = [userId, 0];
+    await query(accountSql, accountParams);
+
+    res.status(201).json({ message: "User and account created", userId });
+  } catch (error) {
+    console.error("Error creating user/account:", error);
+    res.status(500).json({ error: "Something went wrong" });
   }
-
-  const userId = userIds++;
-  const user = { id: userId, username, password };
-  users.push(user);
-
-  const accountId = accountIds++;
-  const account = { id: accountId, userId, amount: 0 };
-  accounts.push(account);
-
-  res.status(201).json({ message: "User created successfully", userId });
 });
 
-app.post("/sessions", (req, res) => {
+app.post("/sessions", async (req, res) => {
   const { username, password } = req.body;
-  const user = users.find(
-    (user) => user.username === username && user.password === password
-  );
 
-  if (!user) {
-    return res.status(401).json({ error: "Login failed" });
+  try {
+    const sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+    const params = [username, password];
+    const result = await query(sql, params);
+    const user = result[0];
+
+    if (!user) {
+      return res.status(401).json({ error: "Login failed" });
+    }
+
+    const otp = generateOTP();
+    sessions = sessions.filter((session) => session.userId !== user.id);
+    sessions.push({ userId: user.id, token: otp });
+
+    res.json({ message: "Login successful", otp, userId: user.id });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
   }
-
-  const otp = generateOTP();
-  sessions = sessions.filter((session) => session.userId !== user.id);
-  sessions.push({ userId: user.id, token: otp });
-
-  res.json({ message: "Login successful", otp, userId: user.id });
 });
 
-app.post("/me/accounts", (req, res) => {
+app.post("/me/accounts", async (req, res) => {
   const { userId, token } = req.body;
 
   const session = sessions.find(
     (session) => session.userId == userId && session.token === token
   );
   if (!session) {
-    console.log("Unauthorized access - Invalid OTP");
     return res.status(401).json({ error: "Invalid OTP" });
   }
 
-  const account = accounts.find((acc) => acc.userId == userId);
-  res.json({ amount: account.amount });
+  try {
+    const sql = "SELECT amount FROM accounts WHERE userId = ?";
+    const result = await query(sql, [userId]);
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Account not found" });
+    }
+
+    res.json({ amount: result[0].amount });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-app.post("/me/accounts/transactions", (req, res) => {
+app.post("/me/accounts/transactions", async (req, res) => {
   const { userId, token, amount } = req.body;
 
   const session = sessions.find(
@@ -82,11 +106,22 @@ app.post("/me/accounts/transactions", (req, res) => {
   if (!session) {
     return res.status(401).json({ error: "Invalid OTP" });
   }
+  try {
+    const updateSql =
+      "UPDATE accounts SET amount = amount + ? WHERE userId = ?";
+    const updateParams = [amount, userId];
+    await query(updateSql, updateParams);
 
-  const account = accounts.find((acc) => acc.userId == userId);
-  account.amount += amount;
+    const selectSql = "SELECT amount FROM accounts WHERE userId = ?";
+    const result = await query(selectSql, [userId]);
 
-  res.json({ message: `Deposited ${amount} kr`, newBalance: account.amount });
+    res.json({
+      message: `Deposited ${amount} kr`,
+      newBalance: result[0].amount,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
 app.post("/logout", (req, res) => {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import Navbar from "./components/navbar";
 import Logout from "./components/logout";
+import { depositToAccount, getBalance } from "./utils/api";
 
 export default function Account() {
   const router = useRouter();
@@ -27,30 +27,13 @@ export default function Account() {
 
   async function fetchBalance(userId, otp) {
     console.log("Fetching balance with:", { userId, otp });
-
-    const response = await fetch("http://localhost:3001/me/accounts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, token: otp }),
-    });
-
-    const data = await response.json();
-    setBalance(data.amount);
+    const amount = await getBalance(userId, otp);
+    setBalance(amount);
   }
 
   async function handleDeposit(e) {
     e.preventDefault();
-
-    await fetch("http://localhost:3001/me/accounts/transactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId,
-        token: otp,
-        amount: Number(depositAmount),
-      }),
-    });
-
+    await depositToAccount(userId, otp, Number(depositAmount));
     setDepositAmount("");
     fetchBalance(userId, otp);
   }
@@ -59,7 +42,6 @@ export default function Account() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
       <div className="container mx-auto py-10 text-center">
         <h2 className="text-3xl font-bold text-gray-800">Ditt Konto</h2>
         <p className="text-xl mt-4 text-gray-800">

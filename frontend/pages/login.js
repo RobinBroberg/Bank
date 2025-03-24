@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import Navbar from "./components/navbar";
+import { loginUser } from "./utils/api";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -9,32 +9,21 @@ export default function Login() {
 
   async function handleLogin(e) {
     e.preventDefault();
+    const data = await loginUser(username, password);
 
-    const response = await fetch("http://localhost:3001/sessions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (!response.ok) {
-      const data = await response.json();
-      alert(data.error || "Login failed!");
+    if (!data) {
       return;
     }
-
-    const data = await response.json();
-    console.log("Login successful:", data);
 
     localStorage.setItem("userId", data.userId);
     localStorage.setItem("otp", data.otp);
     localStorage.setItem("username", username);
 
-    router.push("/account");
+    router.push("/");
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
       <div className="flex items-center justify-center py-10">
         <div className="bg-white p-6 rounded-lg shadow-lg w-96">
           <h2 className="text-2xl font-bold text-center text-gray-900">
@@ -44,7 +33,7 @@ export default function Login() {
             <label className="block text-gray-700">Användarnamn</label>
             <input
               type="text"
-              className="w-full px-4 py-2 border rounded-md"
+              className="w-full px-4 py-2 border rounded-md text-gray-900"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -52,7 +41,7 @@ export default function Login() {
             <label className="block text-gray-700 mt-4">Lösenord</label>
             <input
               type="password"
-              className="w-full px-4 py-2 border rounded-md"
+              className="w-full px-4 py-2 border rounded-md text-gray-900"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

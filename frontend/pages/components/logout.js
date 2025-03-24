@@ -1,21 +1,20 @@
 import { useRouter } from "next/router";
+import { logoutUser } from "../utils/api";
 
 export default function Logout({ userId }) {
   const router = useRouter();
 
   async function handleLogout() {
-    await fetch("http://localhost:3001/logout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: localStorage.getItem("userId") }),
-    });
+    const userId = localStorage.getItem("userId");
+
+    await logoutUser(userId);
 
     localStorage.removeItem("userId");
     localStorage.removeItem("otp");
     localStorage.removeItem("username");
 
     console.log("User logged out.");
-    router.push("/login");
+    router.push("/");
   }
 
   return (

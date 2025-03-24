@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import Navbar from "./components/navbar";
+import { registerUser } from "./utils/api";
 
 export default function Register() {
   const [username, setUsername] = useState("");
@@ -9,19 +9,12 @@ export default function Register() {
 
   async function handleRegister(e) {
     e.preventDefault();
-
-    const response = await fetch("http://localhost:3001/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-    await response.json();
+    await registerUser(username, password);
     router.push("/login");
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
       <div className="flex items-center justify-center py-10">
         <div className="bg-white p-6 rounded-lg shadow-lg w-96">
           <h2 className="text-2xl font-bold text-center text-gray-900">
