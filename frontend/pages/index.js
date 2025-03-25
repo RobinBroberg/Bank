@@ -1,41 +1,24 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import { useUser } from "@/context/userContext";
 import Link from "next/link";
 
 export default function Home() {
-  const router = useRouter();
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
+  const { user, loading } = useUser();
 
-  useEffect(() => {
-    const checkLoginStatus = () => {
-      const userId = localStorage.getItem("userId");
-      const otp = localStorage.getItem("otp");
-      const storedUserName = localStorage.getItem("username");
-
-      setLoggedIn(userId !== null && otp !== null);
-      if (storedUserName) setUserName(storedUserName);
-    };
-    checkLoginStatus();
-    router.events.on("routeChangeComplete", checkLoginStatus);
-    return () => {
-      router.events.off("routeChangeComplete", checkLoginStatus);
-    };
-  }, [router.events]);
+  if (loading) return <p>Laddar...</p>;
 
   return (
     <div className="min-h-screen bg-gray-100">
       <main className="flex flex-col items-center justify-center text-center py-20 px-4">
         <h2 className="text-4xl font-bold text-gray-900">
-          {loggedIn
-            ? `Välkommen tillbaka, ${userName}!`
+          {user
+            ? `Välkommen tillbaka, ${user.username}!`
             : "Välkommen till Banken"}
         </h2>
         <p className="mt-4 text-gray-600">
-          {loggedIn ? "Hantera ditt konto och gör transaktioner enkelt." : ""}
+          {user ? "Hantera ditt konto och gör transaktioner enkelt." : ""}
         </p>
 
-        {loggedIn ? (
+        {user ? (
           <Link
             href="/account"
             className="mt-6 inline-block px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"

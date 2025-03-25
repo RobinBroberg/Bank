@@ -1,44 +1,37 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import Logout from "./components/logout";
-import { depositToAccount, getBalance } from "./utils/api";
+import { depositToAccount, getBalance } from "../utils/api";
+import { useUser } from "@/context/userContext";
 
 export default function Account() {
   const router = useRouter();
-  const [userId, setUserId] = useState(null);
-  const [otp, setOtp] = useState(null);
+  const { user, loading } = useUser();
   const [balance, setBalance] = useState(null);
   const [depositAmount, setDepositAmount] = useState("");
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedUserId = localStorage.getItem("userId");
-      const storedOtp = localStorage.getItem("otp");
-
-      if (!storedUserId || !storedOtp) {
-        router.push("/login");
-      } else {
-        setUserId(storedUserId);
-        setOtp(storedOtp);
-        fetchBalance(storedUserId, storedOtp);
-      }
+    if (!loading && !user) {
+      router.push("/");
     }
-  }, []);
+
+    if (user) {
+      fetchBalance(user.userId, user.otp);
+    }
+  }, [user, loading]);
 
   async function fetchBalance(userId, otp) {
-    console.log("Fetching balance with:", { userId, otp });
     const amount = await getBalance(userId, otp);
     setBalance(amount);
   }
 
   async function handleDeposit(e) {
     e.preventDefault();
-    await depositToAccount(userId, otp, Number(depositAmount));
+    await depositToAccount(user.userId, user.otp, Number(depositAmount));
     setDepositAmount("");
-    fetchBalance(userId, otp);
+    fetchBalance(user.userId, user.otp);
   }
 
-  if (!userId || !otp) return <p>Loading...</p>;
+  if (loading) return <p>Laddar...</p>;
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -61,9 +54,6 @@ export default function Account() {
               Sätt in
             </button>
           </form>
-        </div>
-        <div className="mt-6">
-          <Logout />
         </div>
       </div>
     </div>

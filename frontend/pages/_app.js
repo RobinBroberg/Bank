@@ -1,11 +1,14 @@
 import "@/styles/globals.css";
-import Navbar from "./components/navbar";
+import Navbar from "../components/navbar";
+import { UserProvider } from "@/context/userContext";
 
 export default function App({ Component, pageProps }) {
   return (
     <>
-      <Navbar />
-      <Component {...pageProps} />
+      <UserProvider>
+        <Navbar />
+        <Component {...pageProps} />
+      </UserProvider>
     </>
   );
 }

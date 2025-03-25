@@ -1,18 +1,17 @@
 import { useRouter } from "next/router";
 import { logoutUser } from "../utils/api";
+import { useUser } from "@/context/userContext";
 
-export default function Logout({ userId }) {
+export default function Logout() {
   const router = useRouter();
+  const { user, logout } = useUser();
 
   async function handleLogout() {
-    const userId = localStorage.getItem("userId");
+    if (user?.userId) {
+      await logoutUser(user.userId);
+    }
 
-    await logoutUser(userId);
-
-    localStorage.removeItem("userId");
-    localStorage.removeItem("otp");
-    localStorage.removeItem("username");
-
+    logout();
     console.log("User logged out.");
     router.push("/");
   }

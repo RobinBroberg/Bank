@@ -1,32 +1,8 @@
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useUser } from "@/context/userContext";
 
 export default function Navbar() {
-  const router = useRouter();
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const checkLoginStatus = () => {
-      const userId = localStorage.getItem("userId");
-      const otp = localStorage.getItem("otp");
-      setLoggedIn(userId !== null && otp !== null);
-    };
-
-    checkLoginStatus();
-    router.events.on("routeChangeComplete", checkLoginStatus);
-    return () => {
-      router.events.off("routeChangeComplete", checkLoginStatus);
-    };
-  }, [router.events]);
-
-  function handleLogout() {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("otp");
-
-    setLoggedIn(false);
-    router.push("/");
-  }
+  const { user, logout } = useUser();
 
   return (
     <header className="bg-white shadow-md py-4">
@@ -42,7 +18,7 @@ export default function Navbar() {
               </Link>
             </li>
 
-            {loggedIn && (
+            {user && (
               <li>
                 <Link href="/account">
                   <span className="text-gray-700 hover:text-blue-600 cursor-pointer">
@@ -52,7 +28,7 @@ export default function Navbar() {
               </li>
             )}
 
-            {!loggedIn ? (
+            {!user ? (
               <>
                 <li>
                   <Link href="/login">
@@ -72,7 +48,7 @@ export default function Navbar() {
             ) : (
               <li>
                 <button
-                  onClick={handleLogout}
+                  onClick={logout}
                   className="text-red-600 hover:text-red-800 cursor-pointer"
                 >
                   Logga ut

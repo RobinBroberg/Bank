@@ -49,7 +49,7 @@ export async function depositToAccount(userId, otp, amount) {
 }
 
 export async function logoutUser(userId) {
-  const response = await fetch("http://localhost:3001/logout", {
+  const response = await fetch(`${BASE_URL}/logout`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ userId }),

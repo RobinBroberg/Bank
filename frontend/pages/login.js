@@ -1,23 +1,25 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { loginUser } from "./utils/api";
+import { loginUser } from "../utils/api";
+import { useUser } from "@/context/userContext";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const { login } = useUser();
 
   async function handleLogin(e) {
     e.preventDefault();
     const data = await loginUser(username, password);
 
-    if (!data) {
-      return;
-    }
+    if (!data) return;
 
-    localStorage.setItem("userId", data.userId);
-    localStorage.setItem("otp", data.otp);
-    localStorage.setItem("username", username);
+    login({
+      userId: data.userId,
+      otp: data.otp,
+      username: username,
+    });
 
     router.push("/");
   }
