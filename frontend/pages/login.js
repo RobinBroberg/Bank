@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { loginUser } from "../utils/api";
-import { useUser } from "@/context/userContext";
+import { useUser } from "../context/UserContext";
 
 export default function Login() {
   const [username, setUsername] = useState("");

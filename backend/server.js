@@ -12,9 +12,9 @@ app.use(bodyParser.json());
 const pool = mysql.createPool({
   user: "root",
   password: "root",
-  host: "localhost",
+  host: "mysql",
   database: "bank",
-  port: 3307,
+  port: 3306,
 });
 
 function generateOTP() {

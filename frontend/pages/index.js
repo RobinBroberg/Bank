@@ -1,4 +1,4 @@
-import { useUser } from "@/context/userContext";
+import { useUser } from "../context/UserContext";
 import Link from "next/link";
 
 export default function Home() {

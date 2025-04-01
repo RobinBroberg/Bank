@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { depositToAccount, getBalance } from "../utils/api";
-import { useUser } from "@/context/userContext";
+import { useUser } from "../context/UserContext";
+
 
 export default function Account() {
   const router = useRouter();

@@ -1,4 +1,5 @@
-const BASE_URL = "http://localhost:3001";
+// const BASE_URL = "http://localhost:3001";
+const BASE_URL = "ec2-16-171-55-15.eu-north-1.compute.amazonaws.com"
 
 export async function loginUser(username, password) {
   const response = await fetch(`${BASE_URL}/sessions`, {

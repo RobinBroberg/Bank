@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useUser } from "@/context/userContext";
+import { useUser } from "../context/UserContext";
 
 export default function Navbar() {
   const { user, logout } = useUser();
