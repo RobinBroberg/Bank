@@ -21,16 +21,22 @@ export default function Register() {
             Skapa användare
           </h2>
           <form onSubmit={handleRegister} className="mt-4">
-            <label className="block text-gray-700">Användarnamn</label>
+            <label htmlFor="username" className="block text-gray-700">
+              Användarnamn
+            </label>
             <input
+              id="username"
               type="text"
               className="w-full px-4 py-2 border rounded-md text-gray-800"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
             />
-            <label className="block text-gray-700 mt-4">Lösenord</label>
+            <label htmlFor="password" className="block text-gray-700 mt-4">
+              Lösenord
+            </label>
             <input
+              id="password"
               type="password"
               className="w-full px-4 py-2 border rounded-md text-gray-800"
               value={password}
