@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Register from "./register";
+import Register from "../pages/register";
 import { registerUser } from "../utils/api";
 
 jest.mock("next/router", () => ({
